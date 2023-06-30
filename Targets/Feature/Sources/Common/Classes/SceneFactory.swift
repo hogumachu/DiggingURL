@@ -12,6 +12,7 @@ import Then
 public enum Scene {
     case root
     case home
+    case homeGroupDetail(String)
 }
 
 public protocol SceneFactory {
@@ -52,9 +53,20 @@ public final class SceneFactoryImp: SceneFactory {
             return rootViewController
             
         case .home:
-            let dependency = HomeReactor.Dependency()
+            let dependency = HomeReactor.Dependency(
+                coordinator: coordinator
+            )
             let reactor = HomeReactor(dependency: dependency)
             let viewController = HomeViewController(reactor: reactor)
+            return viewController
+            
+        case .homeGroupDetail(let group):
+            let dependency = HomeGroupDetailReactor.Dependency(
+                coordinator: coordinator,
+                group: group
+            )
+            let reactor = HomeGroupDetailReactor(dependency: dependency)
+            let viewController = HomeGroupDetailViewController(reactor: reactor)
             return viewController
         }
     }
