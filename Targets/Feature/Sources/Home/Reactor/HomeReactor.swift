@@ -22,7 +22,7 @@ final class HomeReactor: Reactor {
     }
     
     struct Dependency {
-        
+        let coordinator: AppCoordinator
     }
     
     struct State {
@@ -45,7 +45,18 @@ final class HomeReactor: Reactor {
             return .just(.setSections(sections))
             
         case .itemSelected(let item):
-            print("## ItemSelected: \(item)")
+            switch item {
+            case .group(let model):
+                dependency.coordinator.transition(
+                    to: .homeGroupDetail(model.group),
+                    using: .push,
+                    animated: true,
+                    completion: nil
+                )
+                
+            default:
+                break
+            }
             return .empty()
         }
     }
