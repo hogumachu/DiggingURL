@@ -38,6 +38,7 @@ final class HomeGroupDetailReactor: Reactor {
     enum Action {
         case refresh
         case navigationLeftButtonTap
+        case itemSelected(Item)
     }
     
     enum Mutation {
@@ -52,6 +53,12 @@ final class HomeGroupDetailReactor: Reactor {
             
         case .navigationLeftButtonTap:
             dependency.coordinator.close(using: .pop, animated: true, completion: nil)
+            return .empty()
+            
+        case .itemSelected(let item):
+            let title = item.cellModel.title
+            let url = item.cellModel.link
+            dependency.coordinator.transition(to: .linkWeb(title: title, url: url), using: .modal, animated: true, completion: nil)
             return .empty()
         }
     }
