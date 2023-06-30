@@ -6,6 +6,7 @@
 //
 
 import Core
+import UI
 import UIKit
 
 public enum TransitionStyle {
@@ -34,15 +35,41 @@ public final class AppCoordinatorImp: AppCoordinator {
     }
     
     public func start(root: Scene) {
-        // TODO: - Create RootViewController
+        let rootViewController = factory.create(scene: .root)
+        let navigationController = UINavigationController(rootViewController: rootViewController)
+        navigationController.setNavigationBarHidden(true, animated: false)
+        navigationController.interactivePopGestureRecognizer?.delegate = nil
+        self.currentNavigationController = navigationController
+        UIApplication.keyWindow?.rootViewController = navigationController
     }
     
     public func transition(to scene: Scene, using style: TransitionStyle, animated: Bool, completion: (() -> Void)?) {
+        guard let topViewController = UIViewController.topViewController else { return }
+        currentNavigationController = topViewController as? UINavigationController ?? topViewController.navigationController
+        let viewController = factory.create(scene: scene)
         
+        switch style {
+        case .modal:
+            let navigationController = UINavigationController(rootViewController: viewController)
+            navigationController.setNavigationBarHidden(true, animated: false)
+            navigationController.interactivePopGestureRecognizer?.delegate = nil
+            navigationController.modalPresentationStyle = .overFullScreen
+            currentNavigationController = navigationController
+            topViewController.present(navigationController, animated: animated, completion: completion)
+            
+        case .push:
+            currentNavigationController?.pushViewController(viewController, animated: animated)
+        }
     }
     
     public func close(using style: CloseStyle, animated: Bool, completion: (() -> Void)?) {
-        
+        switch style {
+        case .pop:
+            currentNavigationController?.popViewController(animated: animated)
+            
+        case .dismiss:
+            currentNavigationController?.dismiss(animated: animated, completion: completion)
+        }
     }
     
 }

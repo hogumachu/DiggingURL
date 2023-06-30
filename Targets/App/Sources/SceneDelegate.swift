@@ -32,7 +32,7 @@ extension SceneDelegate {
         let factory = SceneFactoryImp(injector: injector)
         let coordinator = AppCoordinatorImp(factory: factory)
         self.coordinator = coordinator
-        
+        injector.register(AppCoordinator.self, coordinator)
         // TODO: - Assemble & Register (Injector)
     }
     
