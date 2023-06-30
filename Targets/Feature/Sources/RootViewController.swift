@@ -30,7 +30,28 @@ final class RootViewController: UITabBarController {
     }
     
     private func setupTabBar() {
-        // TODO: - Setup Tab Bar
+        let appearance: UITabBarAppearance = self.tabBar.standardAppearance.then {
+            $0.configureWithDefaultBackground()
+            $0.shadowColor = .monogray2
+            $0.backgroundColor = .white
+            
+            let normalFont: UIFont = UIFont.systemFont(ofSize: 11, weight: .thin)
+            let selectedFont: UIFont = UIFont.systemFont(ofSize: 11, weight: .bold)
+            $0.stackedLayoutAppearance.normal.titleTextAttributes = [.font: normalFont]
+            $0.stackedLayoutAppearance.selected.titleTextAttributes = [.font: selectedFont]
+            $0.stackedLayoutAppearance.normal.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -3)
+            $0.stackedItemPositioning = .centered
+        }
+        self.tabBar.do {
+            $0.barStyle = .default
+            $0.standardAppearance = appearance
+            if #available(iOS 15.0, *) {
+                $0.scrollEdgeAppearance = $0.standardAppearance
+            }
+            $0.isTranslucent = false
+            $0.tintColor = .blue1
+            $0.unselectedItemTintColor = .monogray2
+        }
     }
     
 }
