@@ -68,7 +68,11 @@ public final class AppCoordinatorImp: AppCoordinator {
             currentNavigationController?.popViewController(animated: animated)
             
         case .dismiss:
-            currentNavigationController?.dismiss(animated: animated, completion: completion)
+            currentNavigationController?.dismiss(animated: animated, completion: { [weak self] in
+                completion?()
+                let topViewController = UIViewController.topViewController!
+                self?.currentNavigationController = topViewController as? UINavigationController ?? topViewController.navigationController
+            })
         }
     }
     
