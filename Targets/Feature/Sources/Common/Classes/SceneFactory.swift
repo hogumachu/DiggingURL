@@ -13,6 +13,7 @@ public enum Scene {
     case root
     case home
     case homeGroupDetail(String)
+    case linkWeb(title: String, url: String)
 }
 
 public protocol SceneFactory {
@@ -67,6 +68,16 @@ public final class SceneFactoryImp: SceneFactory {
             )
             let reactor = HomeGroupDetailReactor(dependency: dependency)
             let viewController = HomeGroupDetailViewController(reactor: reactor)
+            return viewController
+            
+        case .linkWeb(let title, let url):
+            let dependency = LinkWebReactor.Dependency(
+                coordinator: coordinator,
+                title: title,
+                url: url
+            )
+            let reactor = LinkWebReactor(dependency: dependency)
+            let viewController = LinkWebViewController(reactor: reactor)
             return viewController
         }
     }

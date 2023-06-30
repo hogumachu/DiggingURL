@@ -99,6 +99,11 @@ extension HomeGroupDetailViewController {
             .map { Reactor.Action.navigationLeftButtonTap }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        tableView.rx.itemSelected(dataSource: dataSource)
+            .map { Reactor.Action.itemSelected($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindState(reactor: Reactor) {
