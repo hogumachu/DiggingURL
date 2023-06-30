@@ -26,10 +26,19 @@ public final class SceneFactoryImp: SceneFactory {
     }
     
     public func create(scene: Scene) -> UIViewController {
+        let coordinator = injector.resovle(AppCoordinator.self)
+        
         switch scene {
         case .root:
-            // TODO: - Change to RootViewController
-            return UIViewController()
+            let rootViewController = RootViewController(coordinator: coordinator)
+            rootViewController.setViewControllers(
+                [
+                    // TODO: - Setup ViewControllers
+                ],
+                animated: false
+            )
+            
+            return rootViewController
         }
     }
 }
