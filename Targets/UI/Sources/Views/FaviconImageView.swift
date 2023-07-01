@@ -30,16 +30,20 @@ public struct FaviconImageViewModel {
 
 public final class FaviconImageView: UIImageView {
     
-    public var model: Binder<FaviconImageViewModel> {
-        return Binder(self) { this, model in
-            this.configure(model)
-        }
-    }
-    
     public func configure(_ model: FaviconImageViewModel) {
         let urlStr = "https://www.google.com/s2/favicons?sz=\(model.size.rawValue)&domain=\(model.domain)"
         guard let url = URL(string: urlStr) else { return }
         kf.setImage(with: url)
+    }
+    
+}
+
+public extension Reactive where Base: FaviconImageView {
+    
+    var model: Binder<FaviconImageViewModel> {
+        return Binder(base) { this, model in
+            this.configure(model)
+        }
     }
     
 }
