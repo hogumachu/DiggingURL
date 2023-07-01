@@ -190,7 +190,8 @@ public extension Module {
             return [
                 .target(name: Module.domain.name),
                 .SPM.rxCocoa.object,
-                .SPM.lottie.object
+                .SPM.lottie.object,
+                .SPM.kingfisher.object
             ]
             
         case .feature:
@@ -229,6 +230,7 @@ public extension TargetDependency {
         case then
         case swinject
         case lottie
+        case kingfisher
         
         public var object: TargetDependency {
             switch self {
@@ -241,6 +243,7 @@ public extension TargetDependency {
             case .then: return TargetDependency.external(name: "Then")
             case .swinject: return TargetDependency.external(name: "Swinject")
             case .lottie: return TargetDependency.external(name: "Lottie")
+            case .kingfisher: return TargetDependency.external(name: "Kingfisher")
             }
         }
         
@@ -272,6 +275,9 @@ public extension TargetDependency {
                 
             case .lottie:
                 return .remote(url: "https://github.com/airbnb/lottie-ios.git", requirement: .upToNextMajor(from: "4.2.0"))
+                
+            case .kingfisher:
+                return .remote(url: "https://github.com/onevcat/Kingfisher.git", requirement: .upToNextMajor(from: "7.0.0"))
             }
         }
     }
