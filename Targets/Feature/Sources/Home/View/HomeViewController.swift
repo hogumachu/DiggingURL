@@ -67,7 +67,7 @@ final class HomeViewController: BaseViewController<HomeReactor> {
         
         navigationView.do {
             $0.configure(.init(
-                type: .titleWithRightButtons([.setting]),
+                type: .titleWithRightButtons([.setting, .plus]),
                 title: "홈",
                 font: .headerB
             ))
@@ -98,6 +98,19 @@ extension HomeViewController {
             .map(Reactor.Action.itemSelected)
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        navigationView.rx.rightButtonTap
+            .compactMap { type -> Reactor.Action? in
+                switch type {
+                case .plus: return .plusButtonTap
+                case .setting: return .settingButtonTap
+                case .search: return nil
+                }
+            }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+                
+                
     }
     
     private func bindState(reactor: Reactor) {

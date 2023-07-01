@@ -32,6 +32,8 @@ final class HomeReactor: Reactor {
     enum Action {
         case refresh
         case itemSelected(Item)
+        case settingButtonTap
+        case plusButtonTap
     }
     
     enum Mutation {
@@ -57,6 +59,13 @@ final class HomeReactor: Reactor {
             default:
                 break
             }
+            return .empty()
+            
+        case .settingButtonTap:
+            return .empty()
+            
+        case .plusButtonTap:
+            dependency.coordinator.transition(to: .groupCreate, using: .modal, animated: true, completion: nil)
             return .empty()
         }
     }
