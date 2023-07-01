@@ -21,6 +21,8 @@ struct HomeGroupDetailTableViewCellModel {
 final class HomeGroupDetailTableViewCell: BaseTableViewCell {
     
     private let containerView = UIView(frame: .zero)
+    private let faviconImageView = FaviconImageView(frame: .zero)
+    private let labelStackView = UIStackView(frame: .zero)
     private let titleLabel = UILabel(frame: .zero)
     private let descriptionLabel = UILabel(frame: .zero)
     private let linkLabel = UILabel(frame: .zero)
@@ -29,12 +31,15 @@ final class HomeGroupDetailTableViewCell: BaseTableViewCell {
         titleLabel.text = model.title
         descriptionLabel.text = model.description
         linkLabel.text = model.link
+        faviconImageView.configure(FaviconImageViewModel(size: .large, domain: model.link))
     }
     
     override func clear() {
         titleLabel.text = nil
         descriptionLabel.text = nil
         linkLabel.text = nil
+        faviconImageView.image = nil
+        faviconImageView.kf.cancelDownloadTask()
     }
     
     override func setupLayout() {
@@ -44,22 +49,22 @@ final class HomeGroupDetailTableViewCell: BaseTableViewCell {
             make.edges.equalToSuperview().inset(inset)
         }
         
-        containerView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(20)
+        containerView.addSubview(faviconImageView)
+        faviconImageView.snp.makeConstraints { make in
+            make.size.equalTo(CGSize(width: 50, height: 50))
+            make.top.leading.bottom.equalToSuperview().inset(20)
         }
         
-        containerView.addSubview(descriptionLabel)
-        descriptionLabel.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(3)
-            make.leading.trailing.equalToSuperview().inset(20)
+        containerView.addSubview(labelStackView)
+        labelStackView.snp.makeConstraints { make in
+            make.leading.equalTo(faviconImageView.snp.trailing).offset(20)
+            make.trailing.equalToSuperview().offset(-20)
+            make.centerY.equalToSuperview()
         }
         
-        containerView.addSubview(linkLabel)
-        linkLabel.snp.makeConstraints { make in
-            make.top.equalTo(descriptionLabel.snp.bottom).offset(3)
-            make.leading.trailing.bottom.equalToSuperview().inset(20)
-        }
+        labelStackView.addArrangedSubview(titleLabel)
+        labelStackView.addArrangedSubview(descriptionLabel)
+        labelStackView.addArrangedSubview(linkLabel)
     }
     
     override func setupAttributes() {
@@ -69,6 +74,20 @@ final class HomeGroupDetailTableViewCell: BaseTableViewCell {
         containerView.do {
             $0.backgroundColor = .white
             $0.layer.cornerRadius = 16
+        }
+        
+        faviconImageView.do {
+            $0.contentMode = .scaleAspectFill
+            $0.layer.cornerRadius = 8
+            $0.backgroundColor = .monogray1
+            $0.clipsToBounds = true
+        }
+        
+        labelStackView.do {
+            $0.axis = .vertical
+            $0.spacing = 3
+            $0.distribution = .fill
+            $0.alignment = .leading
         }
         
         titleLabel.do {
