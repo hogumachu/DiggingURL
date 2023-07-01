@@ -91,6 +91,11 @@ extension LinkWebViewController {
         reactor.state.map(\.url)
             .bind(to: urlBinder)
             .disposed(by: disposeBag)
+        
+        reactor.state.map(\.url)
+            .map { FaviconImageViewModel(size: .medium, domain: $0) }
+            .bind(to: webNavigationView.faviconImageView.rx.model)
+            .disposed(by: disposeBag)
     }
     
     private func bindETC(reactor: Reactor) {
