@@ -16,12 +16,17 @@ public struct ServiceAssembly: Assembly {
     
     public func assemble(container: Container) {
         let realm = try! Realm()
+        
         container.register(GroupRepository.self) { resolver in
             return GroupRepositoryImp(realm: realm)
         }
         
         container.register(LinkRepository.self) { resolver in
             return LinkRepositoryImp(realm: realm)
+        }
+        
+        container.register(NotificationManager.self) { resolver in
+            return NotificationManagerImp.shared
         }
     }
     
