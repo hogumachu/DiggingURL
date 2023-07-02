@@ -6,6 +6,9 @@
 //
 
 import Core
+import Domain
+import Service
+import Foundation
 import RxSwift
 import ReactorKit
 
@@ -23,6 +26,8 @@ final class GroupCreateReactor: Reactor {
     
     struct Dependency {
         let coordinator: AppCoordinator
+        let groupUseCase: GroupUseCase
+        let notifictionManger: NotificationManager
     }
     
     struct State {
@@ -48,8 +53,14 @@ final class GroupCreateReactor: Reactor {
             return .empty()
             
         case .addButtonDidTap:
-            // TODO: - Create Group
-            dependency.coordinator.close(using: .dismiss, animated: true, completion: nil)
+            do {
+                try createGroup()
+                dependency.notifictionManger.repositoryUpdateFinished(type: .group)
+                dependency.coordinator.close(using: .dismiss, animated: true, completion: nil)
+            } catch {
+                print("# TODO: - HANDLE ERROR")
+            }
+            
             return .empty()
             
         case .groupTextDidChange(let text):
@@ -71,6 +82,17 @@ final class GroupCreateReactor: Reactor {
         }
         
         return newState
+    }
+    
+}
+
+extension GroupCreateReactor {
+    
+    private func createGroup() throws {
+        let createdAt = Date()
+        let name = currentState.group
+        let group = Group(name: name, createdAt: createdAt)
+        try dependency.groupUseCase.insert(group: group)
     }
     
 }
