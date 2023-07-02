@@ -13,19 +13,22 @@ import ReactorKit
 
 final class LinkCreateReactor: Reactor {
     
-    var initialState: State = State(
-        name: "",
-        url: "",
-        description: "",
-        isEnabled: false
-    )
+    var initialState: State
     private let dependency: Dependency
     
     init(dependency: Dependency) {
+        var state: State
+        if let link = dependency.link {
+            state = State(name: link.name, url: link.url, description: link.description, isEnabled: true, isCreate: false)
+        } else {
+            state = State(name: "", url: "", description: "", isEnabled: false, isCreate: true)
+        }
+        self.initialState = state
         self.dependency = dependency
     }
     
     struct Dependency {
+        let link: Link?
         let groupID: Date
         let coordinator: AppCoordinator
         let linkUseCase: LinkUseCase
@@ -37,6 +40,7 @@ final class LinkCreateReactor: Reactor {
         var url: String
         var description: String
         var isEnabled: Bool
+        var isCreate: Bool
     }
     
     enum Action {
@@ -44,6 +48,8 @@ final class LinkCreateReactor: Reactor {
         case urlDidUpdate(String)
         case descriptionDidUpdate(String)
         case addButtonTap
+        case removeButtonTap
+        case navigationLeftButtonTap
     }
     
     enum Mutation {
@@ -68,12 +74,26 @@ final class LinkCreateReactor: Reactor {
             
         case .addButtonTap:
             do {
-                try createLink()
+                currentState.isCreate ? try createLink() : try updateLink()
                 dependency.notificationManager.repositoryUpdateFinished(type: .link)
                 dependency.coordinator.close(using: .dismiss, animated: true, completion: nil)
             } catch {
                 print("# TODO: - Handle Error")
             }
+            return .empty()
+            
+        case .removeButtonTap:
+            do {
+                try removeLink()
+                dependency.notificationManager.repositoryUpdateFinished(type: .link)
+                dependency.coordinator.close(using: .dismiss, animated: true, completion: nil)
+            } catch {
+                print("# TODO: - Handle Error")
+            }
+            return .empty()
+            
+        case .navigationLeftButtonTap:
+            dependency.coordinator.close(using: .dismiss, animated: true, completion: nil)
             return .empty()
         }
     }
@@ -108,10 +128,36 @@ extension LinkCreateReactor {
             url: currentState.url.lowercased(),
             description: currentState.description,
             visitCount: 0,
-            isBookMarked: false,
-            createdAt: Date()
+            isBookMarked: dependency.link?.isBookMarked ?? false,
+            createdAt: dependency.link?.createdAt ?? Date()
         )
         try dependency.linkUseCase.insert(link: link)
+    }
+    
+    private func updateLink() throws {
+        let link = Link(
+            groupID: dependency.groupID,
+            name: currentState.name,
+            url: currentState.url.lowercased(),
+            description: currentState.description,
+            visitCount: 0,
+            isBookMarked: dependency.link?.isBookMarked ?? false,
+            createdAt: dependency.link?.createdAt ?? Date()
+        )
+        try dependency.linkUseCase.update(link: link)
+    }
+    
+    private func removeLink() throws {
+        let link = Link(
+            groupID: dependency.groupID,
+            name: currentState.name,
+            url: currentState.url.lowercased(),
+            description: currentState.description,
+            visitCount: 0,
+            isBookMarked: dependency.link?.isBookMarked ?? false,
+            createdAt: dependency.link?.createdAt ?? Date()
+        )
+        try dependency.linkUseCase.delete(link: link)
     }
     
 }

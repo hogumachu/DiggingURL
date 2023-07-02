@@ -80,7 +80,14 @@ final class HomeGroupDetailReactor: Reactor {
             return .empty()
             
         case .itemLongPressed(let item):
-            // TODO: - Show Link Edit View
+            let groupID = dependency.group.createdAt
+            let link = createLink(using: item)
+            dependency.coordinator.transition(
+                to: .linkEdit(groupID: dependency.group.createdAt, link: link),
+                using: .modal,
+                animated: true,
+                completion: nil
+            )
             return .empty()
         }
     }
@@ -135,6 +142,18 @@ extension HomeGroupDetailReactor {
             createdAt: item.cellModel.createdAt
         )
         try? dependency.linkUseCase.update(link: link)
+    }
+    
+    private func createLink(using item: Item) -> Link {
+        return Link(
+            groupID: dependency.group.createdAt,
+            name: item.cellModel.title,
+            url: item.cellModel.link,
+            description: item.cellModel.description ?? "",
+            visitCount: item.cellModel.visitCount,
+            isBookMarked: item.cellModel.isBookMarked,
+            createdAt: item.cellModel.createdAt
+        )
     }
     
 }

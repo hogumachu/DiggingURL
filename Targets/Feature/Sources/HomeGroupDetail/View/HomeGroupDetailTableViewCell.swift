@@ -68,7 +68,7 @@ final class HomeGroupDetailTableViewCell: BaseTableViewCell {
             make.size.equalTo(25)
         }
         
-        containerView.addSubview(labelStackView)
+        containerView.insertSubview(labelStackView, belowSubview: bookMarkedImageView)
         labelStackView.snp.makeConstraints { make in
             make.leading.equalTo(faviconImageView.snp.trailing).offset(20)
             make.trailing.equalToSuperview().offset(-20)

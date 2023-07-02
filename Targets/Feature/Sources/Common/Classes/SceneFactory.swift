@@ -18,6 +18,7 @@ public enum Scene {
     case linkWeb(title: String, url: String)
     case groupCreate
     case linkCreate(groupID: Date)
+    case linkEdit(groupID: Date, link: Link)
 }
 
 public protocol SceneFactory {
@@ -104,6 +105,19 @@ public final class SceneFactoryImp: SceneFactory {
             
         case .linkCreate(let groupID):
             let dependency = LinkCreateReactor.Dependency(
+                link: nil,
+                groupID: groupID,
+                coordinator: coordinator,
+                linkUseCase: linkUseCase,
+                notificationManager: notificationManager
+            )
+            let reactor = LinkCreateReactor(dependency: dependency)
+            let viewController = LinkCreateViewController(reactor: reactor)
+            return viewController
+                
+        case .linkEdit(let groupID, let link):
+            let dependency = LinkCreateReactor.Dependency(
+                link: link,
                 groupID: groupID,
                 coordinator: coordinator,
                 linkUseCase: linkUseCase,
