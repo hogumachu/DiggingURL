@@ -19,6 +19,10 @@ public struct ServiceAssembly: Assembly {
         container.register(GroupRepository.self) { resolver in
             return GroupRepositoryImp(realm: realm)
         }
+        
+        container.register(LinkRepository.self) { resolver in
+            return LinkRepositoryImp(realm: realm)
+        }
     }
     
 }

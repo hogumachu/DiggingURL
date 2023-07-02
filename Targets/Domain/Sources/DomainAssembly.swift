@@ -17,6 +17,11 @@ public struct DomainAssembly: Assembly {
             let repository = resolver.resolve(GroupRepository.self)!
             return GroupUseCaseImp(repository: repository)
         }
+        
+        container.register(LinkUseCase.self) { resolver in
+            let repository = resolver.resolve(LinkRepository.self)!
+            return LinkUseCaseImp(repository: repository)
+        }
     }
     
 }
