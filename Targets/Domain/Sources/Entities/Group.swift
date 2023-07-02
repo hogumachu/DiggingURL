@@ -10,9 +10,11 @@ import Foundation
 public struct Group {
     
     public let name: String
+    public let createdAt: Date
     
-    public init(name: String) {
+    public init(name: String, createdAt: Date) {
         self.name = name
+        self.createdAt = createdAt
     }
     
 }

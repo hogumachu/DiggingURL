@@ -6,19 +6,25 @@
 //
 
 import Domain
+import Foundation
 import RealmSwift
 
 final class GroupObject: Object {
     
-    @Persisted private(set) var name: String
+    @Persisted var name: String
+    @Persisted var createdAt: Date
     
     convenience init(group: Group) {
         self.init()
         self.name = group.name
+        self.createdAt = group.createdAt
     }
     
     var model: Group {
-        return Group(name: self.name)
+        return Group(
+            name: self.name,
+            createdAt: self.createdAt
+        )
     }
     
 }
