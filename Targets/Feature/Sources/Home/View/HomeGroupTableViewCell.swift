@@ -15,6 +15,7 @@ import Then
 struct HomeGroupTableViewCellModel {
     let group: String
     let count: Int
+    let createdAt: Date
 }
 
 final class HomeGroupTableViewCell: BaseTableViewCell {

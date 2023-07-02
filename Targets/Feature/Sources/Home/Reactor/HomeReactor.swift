@@ -6,6 +6,8 @@
 //
 
 import Core
+import Domain
+import Service
 import RxSwift
 import ReactorKit
 
@@ -16,13 +18,17 @@ final class HomeReactor: Reactor {
     
     var initialState: State = State(sections: [])
     private let dependency: Dependency
+    private let disposeBag = DisposeBag()
     
     init(dependency: Dependency) {
         self.dependency = dependency
+        subscribeNotificationManager()
     }
     
     struct Dependency {
         let coordinator: AppCoordinator
+        let groupUseCase: GroupUseCase
+        let notificationManager: NotificationManager
     }
     
     struct State {
@@ -86,14 +92,21 @@ extension HomeReactor {
     
     private func makeSections() -> [Section] {
         var items: [Item] = []
+        let groupItems = dependency.groupUseCase.fetchGroupList(request: .init())
+            .map { group -> Item in
+                return .group(.init(group: group.name, count: 0, createdAt: group.createdAt))
+            }
         items.append(.title("그룹"))
-        items.append(contentsOf: [
-            .group(.init(group: "Swift", count: 5)),
-            .group(.init(group: "iOS", count: 10)),
-            .group(.init(group: "CS", count: 11)),
-            .group(.init(group: "Operation System", count: 4))
-        ])
+        items.append(contentsOf: groupItems)
         return [.group(items)]
+    }
+    
+    private func subscribeNotificationManager() {
+        dependency.notificationManager
+            .repositoryUpdatedObservable
+            .map { _ in Action.refresh }
+            .bind(to: action)
+            .disposed(by: disposeBag)
     }
     
 }
