@@ -6,6 +6,8 @@
 //
 
 import Core
+import Domain
+import Service
 import RxSwift
 import ReactorKit
 
@@ -16,18 +18,22 @@ final class HomeGroupDetailReactor: Reactor {
     
     var initialState: State
     private let dependency: Dependency
+    private let disposeBag = DisposeBag()
     
     init(dependency: Dependency) {
         self.initialState = State(
-            title: dependency.group,
+            title: dependency.group.name,
             sections: []
         )
         self.dependency = dependency
+        subscribeNotificationManager()
     }
     
     struct Dependency {
         let coordinator: AppCoordinator
-        let group: String
+        let group: Group
+        let linkUseCase: LinkUseCase
+        let notificationManager: NotificationManager
     }
     
     struct State {
@@ -38,6 +44,7 @@ final class HomeGroupDetailReactor: Reactor {
     enum Action {
         case refresh
         case navigationLeftButtonTap
+        case addButtonTap
         case itemSelected(Item)
     }
     
@@ -53,6 +60,15 @@ final class HomeGroupDetailReactor: Reactor {
             
         case .navigationLeftButtonTap:
             dependency.coordinator.close(using: .pop, animated: true, completion: nil)
+            return .empty()
+            
+        case .addButtonTap:
+            dependency.coordinator.transition(
+                to: .linkCreate(groupID: dependency.group.createdAt),
+                using: .modal,
+                animated: true,
+                completion: nil
+            )
             return .empty()
             
         case .itemSelected(let item):
@@ -79,12 +95,20 @@ final class HomeGroupDetailReactor: Reactor {
 extension HomeGroupDetailReactor {
     
     private func makeSections() -> [Section] {
-        let items: [Item] = [
-            .init(cellModel: .init(title: "네이버 ", description: "네이버 링크입니다네이버 링크입니다네이버 링크입니다네이버 링크입니다네이버 링크입니다네이버 링크입니다네이버 링크입니다", link: "https://naver.com")),
-            .init(cellModel: .init(title: "깃허브", description: "깃허브 링크입니다깃허브 링크입니다깃허브 링크입니다깃허브 링크입니다깃허브 링크입니다깃허브 링크입니다깃허브 링크입니다깃허브 링크입니다깃허브 링크입니다깃허브 링크입니다깃허브 링크입니다", link: "https://github.com")),
-            .init(cellModel: .init(title: "호구마츄 깃허브", description: "호구마츄 깃허브 링크입니다호구마츄 깃허브 링크입니다호구마츄 깃허브 링크입니다호구마츄 깃허브 링크입니다호구마츄 깃허브 링크입니다호구마츄 깃허브 링크입니다호구마츄 깃허브 링크입니다호구마츄 깃허브 링크입니다호구마츄 깃허브 링크입니다호구마츄 깃허브 링크입니다", link: "https://github.com/hogumachu"))
-        ]
+        let items = dependency.linkUseCase.fetchLinkList(request: .init(groupID: dependency.group.createdAt))
+            .map { link -> Item in
+                return .init(cellModel: .init(title: link.name, description: link.description, link: link.url))
+            }
         return [.init(items: items)]
     }
+    
+    private func subscribeNotificationManager() {
+        dependency.notificationManager
+            .repositoryUpdatedObservable
+            .map { _ in Action.refresh }
+            .bind(to: action)
+            .disposed(by: disposeBag)
+    }
+    
     
 }

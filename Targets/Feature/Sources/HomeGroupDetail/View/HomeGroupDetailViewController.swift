@@ -100,6 +100,11 @@ extension HomeGroupDetailViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        addButton.rx.tap
+            .map { Reactor.Action.addButtonTap }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         tableView.rx.itemSelected(dataSource: dataSource)
             .map { Reactor.Action.itemSelected($0) }
             .bind(to: reactor.action)

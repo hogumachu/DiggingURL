@@ -11,7 +11,7 @@ public struct LinkRequest {
     
     public let predicate: NSPredicate?
     
-    public init(name: String?) {
+    public init(name: String? = nil) {
         guard let name else {
             self.predicate = nil
             return
