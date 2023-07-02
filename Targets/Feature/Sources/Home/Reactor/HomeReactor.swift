@@ -56,7 +56,7 @@ final class HomeReactor: Reactor {
             switch item {
             case .group(let model):
                 dependency.coordinator.transition(
-                    to: .homeGroupDetail(model.group),
+                    to: .homeGroupDetail(Group(name: model.group, createdAt: model.createdAt)),
                     using: .push,
                     animated: true,
                     completion: nil
@@ -104,6 +104,7 @@ extension HomeReactor {
     private func subscribeNotificationManager() {
         dependency.notificationManager
             .repositoryUpdatedObservable
+            .filter { $0 == .group }
             .map { _ in Action.refresh }
             .bind(to: action)
             .disposed(by: disposeBag)
