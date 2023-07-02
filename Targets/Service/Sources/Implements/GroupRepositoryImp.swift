@@ -36,18 +36,32 @@ public final class GroupRepositoryImp: GroupRepository {
     }
     
     public func update(group: Group) throws {
-        try delete(group: group)
-        try insert(group: group)
+        guard let object = realm.objects(GroupObject.self)
+            .filter({ $0.createdAt == group.createdAt })
+            .first
+        else {
+            return
+        }
+        
+        try realm.write {
+            object.name = group.name
+        }
     }
     
     public func delete(group: Group) throws {
         try realm.write {
             guard let object = realm.objects(GroupObject.self)
-                .filter({ $0.name == group.name })
+                .filter({ $0.createdAt == group.createdAt })
                 .first
             else {
                 return
             }
+            realm.objects(LinkObject.self)
+                .filter({ $0.groupID == group.createdAt })
+                .forEach { linkObject in
+                    realm.delete(linkObject)
+                }
+        
             realm.delete(object)
         }
     }
