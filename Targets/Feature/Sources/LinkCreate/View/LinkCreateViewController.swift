@@ -15,7 +15,7 @@ import ReactorKit
 
 final class LinkCreateViewController: BaseViewController<LinkCreateReactor> {
     
-    private var addButtonBottomConstraint: Constraint?
+    private var buttonStackViewBottomConstraint: Constraint?
     
     private let navigationView = NavigationView(frame: .zero)
     private let scrollView = UIScrollView(frame: .zero)
@@ -26,7 +26,9 @@ final class LinkCreateViewController: BaseViewController<LinkCreateReactor> {
     private let urlTextField = CommonTextField(frame: .zero)
     private let descLabel = UILabel(frame: .zero)
     private let descTextField = CommonTextField(frame: .zero)
+    private let buttonStackView = UIStackView(frame: .zero)
     private let addButton = ActionButton(frame: .zero)
+    private let removeButton = ActionButton(frame: .zero)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,8 +36,8 @@ final class LinkCreateViewController: BaseViewController<LinkCreateReactor> {
     }
     
     override func bind(reactor: LinkCreateReactor) {
-        bindAction(reactor: reactor)
         bindState(reactor: reactor)
+        bindAction(reactor: reactor)
         bindETC(reactor: reactor)
     }
     
@@ -47,12 +49,15 @@ final class LinkCreateViewController: BaseViewController<LinkCreateReactor> {
             make.height.equalTo(48)
         }
         
-        view.addSubview(addButton)
-        addButton.snp.makeConstraints { make in
+        view.addSubview(buttonStackView)
+        buttonStackView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            addButtonBottomConstraint = make.bottom.equalTo(view.safeArea.bottom).offset(-10).constraint
+            buttonStackViewBottomConstraint = make.bottom.equalTo(view.safeArea.bottom).offset(-10).constraint
             make.height.equalTo(50)
         }
+        
+        buttonStackView.addArrangedSubview(removeButton)
+        buttonStackView.addArrangedSubview(addButton)
         
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
@@ -152,10 +157,23 @@ final class LinkCreateViewController: BaseViewController<LinkCreateReactor> {
             $0.font = .bodyR
         }
         
+        buttonStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 10
+            $0.alignment = .fill
+            $0.distribution = .fillEqually
+        }
+        
         addButton.do {
             $0.style = .normal
             $0.layer.cornerRadius = 16
             $0.setTitle("추가하기", for: .normal)
+        }
+        
+        removeButton.do {
+            $0.style = .secondary
+            $0.layer.cornerRadius = 16
+            $0.setTitle("제거하기", for: .normal)
         }
     }
     
@@ -186,11 +204,47 @@ extension LinkCreateViewController {
             .map { Reactor.Action.addButtonTap }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        removeButton.rx.tap
+            .map { Reactor.Action.removeButtonTap }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        navigationView.rx.leftButtonTap
+            .map { Reactor.Action.navigationLeftButtonTap }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindState(reactor: Reactor) {
+        reactor.state.map(\.name)
+            .bind(to: nameTextField.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map(\.url)
+            .bind(to: urlTextField.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map(\.description)
+            .bind(to: descTextField.rx.text)
+            .disposed(by: disposeBag)
+        
         reactor.state.map(\.isEnabled)
             .bind(to: addButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map(\.isCreate)
+            .map { $0 ? "추가하기" : "변경하기" }
+            .bind(to: addButton.rx.title())
+            .disposed(by: disposeBag)
+        
+        reactor.state.map(\.isCreate)
+            .map { $0 ? "링크 추가" : "링크 변경" }
+            .bind(to: navigationView.rx.centerTitle)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map(\.isCreate)
+            .bind(to: removeButton.rx.isHidden)
             .disposed(by: disposeBag)
     }
     
@@ -207,7 +261,7 @@ extension LinkCreateViewController {
     
     private var keyboardShowBinder: Binder<CGRect> {
         return Binder(self) { this, keyboardSize in
-            this.addButtonBottomConstraint?.update(offset: -keyboardSize.height)
+            this.buttonStackViewBottomConstraint?.update(offset: -keyboardSize.height)
             UIView.animate(withDuration: 0.3) {
                 this.view.layoutIfNeeded()
             }
@@ -216,7 +270,7 @@ extension LinkCreateViewController {
     
     private var keyboardHideBinder: Binder<Notification> {
         return Binder(self) { this, _ in
-            this.addButtonBottomConstraint?.update(offset: -10)
+            this.buttonStackViewBottomConstraint?.update(offset: -10)
             UIView.animate(withDuration: 0.3) {
                 this.view.layoutIfNeeded()
             }
