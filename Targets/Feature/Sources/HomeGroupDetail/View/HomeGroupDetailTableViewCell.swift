@@ -16,6 +16,9 @@ struct HomeGroupDetailTableViewCellModel {
     let title: String
     let description: String?
     let link: String
+    let visitCount: Int
+    let isBookMarked: Bool
+    let createdAt: Date
 }
 
 final class HomeGroupDetailTableViewCell: BaseTableViewCell {
@@ -26,12 +29,14 @@ final class HomeGroupDetailTableViewCell: BaseTableViewCell {
     private let titleLabel = UILabel(frame: .zero)
     private let descriptionLabel = UILabel(frame: .zero)
     private let linkLabel = UILabel(frame: .zero)
+    private let bookMarkedImageView = UIImageView(frame: .zero)
     
     func configure(_ model: HomeGroupDetailTableViewCellModel) {
         titleLabel.text = model.title
         descriptionLabel.text = model.description
         linkLabel.text = model.link
         faviconImageView.configure(FaviconImageViewModel(size: .large, domain: model.link))
+        bookMarkedImageView.tintColor = model.isBookMarked ? .monopink : .clear
     }
     
     override func clear() {
@@ -40,6 +45,7 @@ final class HomeGroupDetailTableViewCell: BaseTableViewCell {
         linkLabel.text = nil
         faviconImageView.image = nil
         faviconImageView.kf.cancelDownloadTask()
+        bookMarkedImageView.tintColor = .clear
     }
     
     override func setupLayout() {
@@ -53,6 +59,13 @@ final class HomeGroupDetailTableViewCell: BaseTableViewCell {
         faviconImageView.snp.makeConstraints { make in
             make.size.equalTo(CGSize(width: 50, height: 50))
             make.top.leading.bottom.equalToSuperview().inset(20)
+        }
+        
+        containerView.addSubview(bookMarkedImageView)
+        bookMarkedImageView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.trailing.equalToSuperview().inset(20)
+            make.size.equalTo(25)
         }
         
         containerView.addSubview(labelStackView)
@@ -106,6 +119,12 @@ final class HomeGroupDetailTableViewCell: BaseTableViewCell {
             $0.textColor = .monogray2
             $0.font = .captionR
             $0.numberOfLines = 1
+        }
+        
+        bookMarkedImageView.do {
+            $0.image = UIImage(systemName: "bookmark.fill")?.withRenderingMode(.alwaysTemplate)
+            $0.tintColor = .clear
+            $0.contentMode = .scaleAspectFit
         }
     }
     

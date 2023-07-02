@@ -106,7 +106,10 @@ extension LinkCreateReactor {
             groupID: dependency.groupID,
             name: currentState.name,
             url: currentState.url.lowercased(),
-            description: currentState.description
+            description: currentState.description,
+            visitCount: 0,
+            isBookMarked: false,
+            createdAt: Date()
         )
         try dependency.linkUseCase.insert(link: link)
     }
