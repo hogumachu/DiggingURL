@@ -36,8 +36,21 @@ public final class LinkRepositoryImp: LinkRepository {
     }
     
     public func update(link: Link) throws {
-        try delete(link: link)
-        try insert(link: link)
+        guard let object = realm.objects(LinkObject.self)
+            .filter({ $0.createdAt == link.createdAt })
+            .first
+        else {
+            return
+        }
+        
+        try realm.write {
+            object.groupID = link.groupID
+            object.name = link.name
+            object.url = link.url
+            object.desc = link.description
+            object.visitCount = link.visitCount
+            object.isBookMarked = link.isBookMarked
+        }
     }
     
     public func delete(link: Link) throws {

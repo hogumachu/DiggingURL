@@ -15,6 +15,9 @@ final class LinkObject: Object {
     @Persisted var name: String
     @Persisted var url: String
     @Persisted var desc: String
+    @Persisted var visitCount: Int
+    @Persisted var isBookMarked: Bool
+    @Persisted var createdAt: Date
     
     convenience init(link: Link) {
         self.init()
@@ -22,6 +25,9 @@ final class LinkObject: Object {
         self.name = link.name
         self.url = link.url
         self.desc = link.description
+        self.visitCount = link.visitCount
+        self.isBookMarked = link.isBookMarked
+        self.createdAt = link.createdAt
     }
     
     var model: Link {
@@ -29,7 +35,10 @@ final class LinkObject: Object {
             groupID: self.groupID,
             name: self.name,
             url: self.url,
-            description: self.desc
+            description: self.desc,
+            visitCount: self.visitCount,
+            isBookMarked: self.isBookMarked,
+            createdAt: self.createdAt
         )
     }
     
