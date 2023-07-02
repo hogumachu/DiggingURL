@@ -6,6 +6,8 @@
 //
 
 import Core
+import Domain
+import Service
 import UIKit
 import Then
 
@@ -31,6 +33,8 @@ public final class SceneFactoryImp: SceneFactory {
     
     public func create(scene: Scene) -> UIViewController {
         let coordinator = injector.resovle(AppCoordinator.self)
+        let groupUseCase = injector.resovle(GroupUseCase.self)
+        let notificationManager = injector.resovle(NotificationManager.self)
         
         switch scene {
         case .root:
@@ -56,7 +60,10 @@ public final class SceneFactoryImp: SceneFactory {
             
         case .home:
             let dependency = HomeReactor.Dependency(
-                coordinator: coordinator
+                coordinator: coordinator,
+                groupUseCase: groupUseCase,
+                notificationManager: notificationManager
+                
             )
             let reactor = HomeReactor(dependency: dependency)
             let viewController = HomeViewController(reactor: reactor)
@@ -83,7 +90,9 @@ public final class SceneFactoryImp: SceneFactory {
             
         case .groupCreate:
             let dependency = GroupCreateReactor.Dependency(
-                coordinator: coordinator
+                coordinator: coordinator,
+                groupUseCase: groupUseCase,
+                notifictionManger: notificationManager
             )
             let reactor = GroupCreateReactor(dependency: dependency)
             let viewController = GroupCreateViewController(reactor: reactor)
