@@ -127,6 +127,7 @@ final class LinkCreateViewController: BaseViewController<LinkCreateReactor> {
             $0.textColor = .monoblack
             $0.backgroundColor = .white
             $0.font = .bodyR
+            $0.text = reactor?.initialState.name
         }
         
         urlLabel.do {
@@ -141,6 +142,7 @@ final class LinkCreateViewController: BaseViewController<LinkCreateReactor> {
             $0.textColor = .monoblack
             $0.backgroundColor = .white
             $0.font = .bodyR
+            $0.text = reactor?.initialState.url
         }
         
         descLabel.do {
@@ -155,6 +157,7 @@ final class LinkCreateViewController: BaseViewController<LinkCreateReactor> {
             $0.textColor = .monoblack
             $0.backgroundColor = .white
             $0.font = .bodyR
+            $0.text = reactor?.initialState.description
         }
         
         buttonStackView.do {
@@ -214,21 +217,15 @@ extension LinkCreateViewController {
             .map { Reactor.Action.navigationLeftButtonTap }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        descTextField.rx.returnKeyDidTap
+            .filter { self.addButton.isEnabled }
+            .map { Reactor.Action.addButtonTap }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindState(reactor: Reactor) {
-        reactor.state.map(\.name)
-            .bind(to: nameTextField.rx.text)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map(\.url)
-            .bind(to: urlTextField.rx.text)
-            .disposed(by: disposeBag)
-        
-        reactor.state.map(\.description)
-            .bind(to: descTextField.rx.text)
-            .disposed(by: disposeBag)
-        
         reactor.state.map(\.isEnabled)
             .bind(to: addButton.rx.isEnabled)
             .disposed(by: disposeBag)
@@ -256,6 +253,22 @@ extension LinkCreateViewController {
         
         NotificationCenter.default.rx.keyboardWillHide
             .bind(to: keyboardHideBinder)
+            .disposed(by: disposeBag)
+        
+        nameTextField.rx.returnKeyDidTap
+            .withUnretained(self.urlTextField)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { nextTextField, _ in
+                nextTextField.becomeFirstResponder()
+            })
+            .disposed(by: disposeBag)
+        
+        urlTextField.rx.returnKeyDidTap
+            .withUnretained(self.descTextField)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { nextTextField, _ in
+                nextTextField.becomeFirstResponder()
+            })
             .disposed(by: disposeBag)
     }
     
