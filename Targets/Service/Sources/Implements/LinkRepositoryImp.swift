@@ -56,7 +56,7 @@ public final class LinkRepositoryImp: LinkRepository {
     public func delete(link: Link) throws {
         try realm.write {
             guard let object = realm.objects(LinkObject.self)
-                .filter({ $0.groupID == link.groupID && $0.url == link.url })
+                .filter({ $0.createdAt == link.createdAt })
                 .first
             else {
                 return
