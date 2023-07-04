@@ -99,6 +99,14 @@ extension HomeViewController {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        tableView.addLongPressGesture().rx.event
+            .filter { $0.state == .began }
+            .compactMap { self.tableView.indexPathForRow(at: $0.location(in: self.tableView)) }
+            .map { self.dataSource[$0] }
+            .map { Reactor.Action.itemLongPressed($0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         navigationView.rx.rightButtonTap
             .compactMap { type -> Reactor.Action? in
                 switch type {
@@ -109,8 +117,6 @@ extension HomeViewController {
             }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-                
-                
     }
     
     private func bindState(reactor: Reactor) {

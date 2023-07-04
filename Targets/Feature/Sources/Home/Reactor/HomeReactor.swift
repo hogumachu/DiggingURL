@@ -28,6 +28,7 @@ final class HomeReactor: Reactor {
     struct Dependency {
         let coordinator: AppCoordinator
         let groupUseCase: GroupUseCase
+        let linkUseCase: LinkUseCase
         let notificationManager: NotificationManager
     }
     
@@ -38,6 +39,7 @@ final class HomeReactor: Reactor {
     enum Action {
         case refresh
         case itemSelected(Item)
+        case itemLongPressed(Item)
         case settingButtonTap
         case plusButtonTap
     }
@@ -53,18 +55,11 @@ final class HomeReactor: Reactor {
             return .just(.setSections(sections))
             
         case .itemSelected(let item):
-            switch item {
-            case .group(let model):
-                dependency.coordinator.transition(
-                    to: .homeGroupDetail(Group(name: model.group, createdAt: model.createdAt)),
-                    using: .push,
-                    animated: true,
-                    completion: nil
-                )
-                
-            default:
-                break
-            }
+            itemSelected(item: item)
+            return .empty()
+            
+        case .itemLongPressed(let item):
+            itemLongPressed(item: item)
             return .empty()
             
         case .settingButtonTap:
@@ -90,11 +85,43 @@ final class HomeReactor: Reactor {
 
 extension HomeReactor {
     
+    private func itemSelected(item: Item) {
+        switch item {
+        case .group(let model):
+            dependency.coordinator.transition(
+                to: .homeGroupDetail(Group(name: model.group, createdAt: model.createdAt)),
+                using: .push,
+                animated: true,
+                completion: nil
+            )
+            
+        default:
+            break
+        }
+    }
+    
+    private func itemLongPressed(item: Item) {
+        switch item {
+        case .group(let model):
+            let group = Group(name: model.group, createdAt: model.createdAt)
+            dependency.coordinator.transition(
+                to: .groupEdit(group: group),
+                using: .modal,
+                animated: true,
+                completion: nil
+            )
+            
+        default:
+            break
+        }
+    }
+    
     private func makeSections() -> [Section] {
         var items: [Item] = []
         let groupItems = dependency.groupUseCase.fetchGroupList(request: .init())
             .map { group -> Item in
-                return .group(.init(group: group.name, count: 0, createdAt: group.createdAt))
+                let count = dependency.linkUseCase.fetchLinkList(request: .init(groupID: group.createdAt)).count
+                return .group(.init(group: group.name, count: count, createdAt: group.createdAt))
             }
         items.append(.title("그룹"))
         items.append(contentsOf: groupItems)

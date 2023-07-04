@@ -17,6 +17,7 @@ public enum Scene {
     case homeGroupDetail(Group)
     case linkWeb(title: String, url: String)
     case groupCreate
+    case groupEdit(group: Group)
     case linkCreate(groupID: Date)
     case linkEdit(groupID: Date, link: Link)
 }
@@ -65,6 +66,7 @@ public final class SceneFactoryImp: SceneFactory {
             let dependency = HomeReactor.Dependency(
                 coordinator: coordinator,
                 groupUseCase: groupUseCase,
+                linkUseCase: linkUseCase,
                 notificationManager: notificationManager
                 
             )
@@ -95,6 +97,18 @@ public final class SceneFactoryImp: SceneFactory {
             
         case .groupCreate:
             let dependency = GroupCreateReactor.Dependency(
+                group: nil,
+                coordinator: coordinator,
+                groupUseCase: groupUseCase,
+                notifictionManger: notificationManager
+            )
+            let reactor = GroupCreateReactor(dependency: dependency)
+            let viewController = GroupCreateViewController(reactor: reactor)
+            return viewController
+            
+        case .groupEdit(let group):
+            let dependency = GroupCreateReactor.Dependency(
+                group: group,
                 coordinator: coordinator,
                 groupUseCase: groupUseCase,
                 notifictionManger: notificationManager

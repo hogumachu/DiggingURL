@@ -15,11 +15,13 @@ import ReactorKit
 
 final class GroupCreateViewController: BaseViewController<GroupCreateReactor> {
     
-    private var addButtonBottomConstraint: Constraint?
+    private var buttonStackViewBottomConstraint: Constraint?
     
     private let navigationView = NavigationView(frame: .zero)
     private let groupTextField = CommonTextField(frame: .zero)
+    private let buttonStackView = UIStackView(frame: .zero)
     private let addButton = ActionButton(frame: .zero)
+    private let removeButton = ActionButton(frame: .zero)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,12 +49,15 @@ final class GroupCreateViewController: BaseViewController<GroupCreateReactor> {
             make.height.equalTo(40)
         }
         
-        view.addSubview(addButton)
-        addButton.snp.makeConstraints { make in
+        view.addSubview(buttonStackView)
+        buttonStackView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            addButtonBottomConstraint = make.bottom.equalTo(view.safeArea.bottom).offset(-10).constraint
+            buttonStackViewBottomConstraint = make.bottom.equalTo(view.safeArea.bottom).offset(-10).constraint
             make.height.equalTo(50)
         }
+        
+        buttonStackView.addArrangedSubview(removeButton)
+        buttonStackView.addArrangedSubview(addButton)
     }
     
     override func setupAttributes() {
@@ -74,10 +79,23 @@ final class GroupCreateViewController: BaseViewController<GroupCreateReactor> {
             $0.font = .bodyR
         }
         
+        buttonStackView.do {
+            $0.axis = .horizontal
+            $0.spacing = 10
+            $0.alignment = .fill
+            $0.distribution = .fillEqually
+        }
+        
         addButton.do {
             $0.style = .normal
             $0.layer.cornerRadius = 16
             $0.setTitle("추가하기", for: .normal)
+        }
+        
+        removeButton.do {
+            $0.style = .secondary
+            $0.layer.cornerRadius = 16
+            $0.setTitle("제거하기", for: .normal)
         }
     }
     
@@ -101,11 +119,30 @@ extension GroupCreateViewController {
             .map { Reactor.Action.addButtonDidTap }
             .bind(to: reacotr.action)
             .disposed(by: disposeBag)
+        
+        removeButton.rx.tap
+            .map { Reactor.Action.removeButtonTap }
+            .bind(to: reacotr.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindState(reactor: Reactor) {
         reactor.state.map(\.isEnabled)
             .bind(to: addButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map(\.isCreate)
+            .map { $0 ? "추가하기" : "변경하기" }
+            .bind(to: addButton.rx.title())
+            .disposed(by: disposeBag)
+        
+        reactor.state.map(\.isCreate)
+            .map { $0 ? "그룹 추가" : "그룹 변경" }
+            .bind(to: navigationView.rx.centerTitle)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map(\.isCreate)
+            .bind(to: removeButton.rx.isHidden)
             .disposed(by: disposeBag)
     }
     
@@ -122,7 +159,7 @@ extension GroupCreateViewController {
     
     private var keyboardShowBinder: Binder<CGRect> {
         return Binder(self) { this, keyboardSize in
-            this.addButtonBottomConstraint?.update(offset: -keyboardSize.height)
+            this.buttonStackViewBottomConstraint?.update(offset: -keyboardSize.height)
             UIView.animate(withDuration: 0.3) {
                 this.view.layoutIfNeeded()
             }
@@ -131,7 +168,7 @@ extension GroupCreateViewController {
     
     private var keyboardHideBinder: Binder<Notification> {
         return Binder(self) { this, _ in
-            this.addButtonBottomConstraint?.update(offset: -10)
+            this.buttonStackViewBottomConstraint?.update(offset: -10)
             UIView.animate(withDuration: 0.3) {
                 this.view.layoutIfNeeded()
             }
