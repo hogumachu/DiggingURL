@@ -46,7 +46,7 @@ public final class SceneFactoryImp: SceneFactory {
             let homeViewController: UINavigationController = {
                 let homeVC = create(scene: .home)
                 homeVC.tabBarItem = UITabBarItem(title: nil, image: UIImage(named: "grid"), selectedImage: nil)
-                homeVC.tabBarItem.title = "홈"
+                homeVC.tabBarItem.title = "Home"
                 return UINavigationController(rootViewController: homeVC).then {
                     $0.setNavigationBarHidden(true, animated: false)
                     $0.interactivePopGestureRecognizer?.delegate = nil
