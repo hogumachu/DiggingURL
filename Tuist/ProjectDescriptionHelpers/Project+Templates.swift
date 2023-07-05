@@ -184,7 +184,8 @@ public extension Module {
             return [
                 .target(name: Module.domain.name),
                 .XcodeSPM.realmSwift.object,
-                .XcodeSPM.firebaseAnalytics.object
+                .XcodeSPM.firebaseAnalytics.object,
+                .package(product: "FirebaseFirestore")
             ]
             
         case .ui:
