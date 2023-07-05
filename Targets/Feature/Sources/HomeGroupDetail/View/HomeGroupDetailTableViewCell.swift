@@ -13,6 +13,7 @@ import SnapKit
 import Then
 
 struct HomeGroupDetailTableViewCellModel {
+    let groupID: Date
     let title: String
     let description: String?
     let link: String

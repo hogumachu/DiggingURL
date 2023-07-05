@@ -38,6 +38,20 @@ final class HomeViewController: BaseViewController<HomeReactor> {
             }
             cell.configure(model)
             return cell
+            
+        case .link(let model):
+            guard let cell = tableView.dequeueCell(HomeGroupDetailTableViewCell.self, for: indexPath) else {
+                return UITableViewCell()
+            }
+            cell.configure(model)
+            return cell
+            
+        case .guide(let model):
+            guard let cell = tableView.dequeueCell(HomeGuideTableViewCell.self, for: indexPath) else {
+                return UITableViewCell()
+            }
+            cell.configure(model)
+            return cell
         }
     }
     
@@ -68,7 +82,7 @@ final class HomeViewController: BaseViewController<HomeReactor> {
         navigationView.do {
             $0.configure(.init(
                 type: .titleWithRightButtons([.setting, .plus]),
-                title: "홈",
+                title: "Home",
                 font: .headerB
             ))
         }
@@ -79,6 +93,8 @@ final class HomeViewController: BaseViewController<HomeReactor> {
             $0.separatorStyle = .none
             $0.register(TextOnlyTableViewCell.self)
             $0.register(HomeGroupTableViewCell.self)
+            $0.register(HomeGroupDetailTableViewCell.self)
+            $0.register(HomeGuideTableViewCell.self)
         }
     }
     

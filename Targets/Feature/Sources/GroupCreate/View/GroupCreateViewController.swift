@@ -77,6 +77,7 @@ final class GroupCreateViewController: BaseViewController<GroupCreateReactor> {
             $0.textColor = .monoblack
             $0.backgroundColor = .white
             $0.font = .bodyR
+            $0.text = reactor?.initialState.name
         }
         
         buttonStackView.do {
