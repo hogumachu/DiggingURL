@@ -47,7 +47,7 @@ final class HomeViewController: BaseViewController<HomeReactor> {
             return cell
             
         case .guide(let model):
-            guard let cell = tableView.dequeueCell(HomeGuideTableViewCell.self, for: indexPath) else {
+            guard let cell = tableView.dequeueCell(GuideTableViewCell.self, for: indexPath) else {
                 return UITableViewCell()
             }
             cell.configure(model)
@@ -94,7 +94,7 @@ final class HomeViewController: BaseViewController<HomeReactor> {
             $0.register(TextOnlyTableViewCell.self)
             $0.register(HomeGroupTableViewCell.self)
             $0.register(HomeGroupDetailTableViewCell.self)
-            $0.register(HomeGuideTableViewCell.self)
+            $0.register(GuideTableViewCell.self)
         }
     }
     
