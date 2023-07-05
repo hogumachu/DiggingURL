@@ -80,7 +80,6 @@ final class HomeGroupDetailReactor: Reactor {
             return .empty()
             
         case .itemLongPressed(let item):
-            let groupID = dependency.group.createdAt
             let link = createLink(using: item)
             dependency.coordinator.transition(
                 to: .linkEdit(groupID: dependency.group.createdAt, link: link),
@@ -111,6 +110,7 @@ extension HomeGroupDetailReactor {
         let items = dependency.linkUseCase.fetchLinkList(request: .init(groupID: dependency.group.createdAt))
             .map { link -> Item in
                 return .init(cellModel: .init(
+                    groupID: link.groupID,
                     title: link.name,
                     description: link.description,
                     link: link.url,
