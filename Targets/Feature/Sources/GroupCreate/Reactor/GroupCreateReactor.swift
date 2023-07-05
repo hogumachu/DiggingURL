@@ -62,7 +62,7 @@ final class GroupCreateReactor: Reactor {
             
         case .addButtonDidTap:
             do {
-                try createGroup()
+                try currentState.isCreate ? createGroup() : editGroup()
                 dependency.notifictionManger.repositoryUpdateFinished(type: .group)
                 dependency.coordinator.close(using: .dismiss, animated: true, completion: nil)
             } catch {
@@ -118,6 +118,15 @@ extension GroupCreateReactor {
             return
         }
         try dependency.groupUseCase.delete(group: group)
+    }
+    
+    private func editGroup() throws {
+        guard let group = dependency.group else {
+            return
+        }
+        let name = currentState.name
+        let newGroup = Group(name: name, createdAt: group.createdAt)
+        try dependency.groupUseCase.update(group: newGroup)
     }
     
 }

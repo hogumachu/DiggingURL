@@ -22,11 +22,21 @@ final class HomeGroupDetailViewController: BaseViewController<HomeGroupDetailRea
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let addButton = ActionButton(frame: .zero)
     private lazy var dataSource = Section  { section, tableView, indexPath, item in
-        guard let cell = tableView.dequeueCell(HomeGroupDetailTableViewCell.self, for: indexPath) else {
-            return UITableViewCell()
+        switch item {
+        case .detail(let model):
+            guard let cell = tableView.dequeueCell(HomeGroupDetailTableViewCell.self, for: indexPath) else {
+                return UITableViewCell()
+            }
+            cell.configure(model)
+            return cell
+            
+        case .guide(let model):
+            guard let cell = tableView.dequeueCell(GuideTableViewCell.self, for: indexPath) else {
+                return UITableViewCell()
+            }
+            cell.configure(model)
+            return cell
         }
-        cell.configure(item.cellModel)
-        return cell
     }
     
     override func bind(reactor: HomeGroupDetailReactor) {
@@ -74,6 +84,7 @@ final class HomeGroupDetailViewController: BaseViewController<HomeGroupDetailRea
             $0.showsVerticalScrollIndicator = false
             $0.separatorStyle = .none
             $0.register(HomeGroupDetailTableViewCell.self)
+            $0.register(GuideTableViewCell.self)
         }
         
         addButton.do {

@@ -125,6 +125,12 @@ extension GroupCreateViewController {
             .map { Reactor.Action.removeButtonTap }
             .bind(to: reacotr.action)
             .disposed(by: disposeBag)
+        
+        groupTextField.rx.returnKeyDidTap
+            .filter { self.addButton.isEnabled }
+            .map { Reactor.Action.addButtonDidTap }
+            .bind(to: reacotr.action)
+            .disposed(by: disposeBag)
     }
     
     private func bindState(reactor: Reactor) {

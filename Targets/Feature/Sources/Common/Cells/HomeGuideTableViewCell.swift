@@ -1,5 +1,5 @@
 //
-//  HomeGuideTableViewCell.swift
+//  GuideTableViewCell.swift
 //  Feature
 //
 //  Created by 홍성준 on 2023/07/05.
@@ -10,17 +10,17 @@ import UIKit
 import SnapKit
 import Then
 
-struct HomeGuidTableViewCellModel {
+struct GuideTableViewCellModel {
     let title: String
     let subtitle: String
 }
 
-final class HomeGuideTableViewCell: BaseTableViewCell {
+final class GuideTableViewCell: BaseTableViewCell {
     
     private let titleLabel = UILabel(frame: .zero)
     private let subtitleLabel = UILabel(frame: .zero)
     
-    func configure(_ model: HomeGuidTableViewCellModel) {
+    func configure(_ model: GuideTableViewCellModel) {
         titleLabel.text = model.title
         subtitleLabel.text = model.subtitle
     }

@@ -16,7 +16,7 @@ enum HomeItem {
     case title(String)
     case group(HomeGroupTableViewCellModel)
     case link(HomeGroupDetailTableViewCellModel)
-    case guide(HomeGuidTableViewCellModel)
+    case guide(GuideTableViewCellModel)
 }
 
 extension HomeSection: SectionModelType {

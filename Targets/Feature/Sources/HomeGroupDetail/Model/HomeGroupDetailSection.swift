@@ -11,8 +11,9 @@ struct HomeGroupDetailSection {
     var items: [HomeGroupDetailItem]
 }
 
-struct HomeGroupDetailItem {
-    let cellModel: HomeGroupDetailTableViewCellModel
+enum HomeGroupDetailItem {
+    case detail(HomeGroupDetailTableViewCellModel)
+    case guide(GuideTableViewCellModel)
 }
 
 extension HomeGroupDetailSection: SectionModelType {

@@ -73,20 +73,32 @@ final class HomeGroupDetailReactor: Reactor {
             return .empty()
             
         case .itemSelected(let item):
-            let title = item.cellModel.title
-            let url = item.cellModel.link
-            updateLinkVisitCountIfEnabled(using: item)
-            dependency.coordinator.transition(to: .linkWeb(title: title, url: url), using: .modal, animated: true, completion: nil)
+            switch item {
+            case .detail(let model):
+                let title = model.title
+                let url = model.link
+                updateLinkVisitCountIfEnabled(using: model)
+                dependency.coordinator.transition(to: .linkWeb(title: title, url: url), using: .modal, animated: true, completion: nil)
+                
+            default:
+                break
+            }
             return .empty()
             
         case .itemLongPressed(let item):
-            let link = createLink(using: item)
-            dependency.coordinator.transition(
-                to: .linkEdit(groupID: dependency.group.createdAt, link: link),
-                using: .modal,
-                animated: true,
-                completion: nil
-            )
+            switch item {
+            case .detail(let model):
+                let link = model.toLink()
+                dependency.coordinator.transition(
+                    to: .linkEdit(groupID: dependency.group.createdAt, link: link),
+                    using: .modal,
+                    animated: true,
+                    completion: nil
+                )
+                
+            default:
+                break
+            }
             return .empty()
         }
     }
@@ -108,18 +120,12 @@ extension HomeGroupDetailReactor {
     
     private func makeSections() -> [Section] {
         let items = dependency.linkUseCase.fetchLinkList(request: .init(groupID: dependency.group.createdAt))
-            .map { link -> Item in
-                return .init(cellModel: .init(
-                    groupID: link.groupID,
-                    title: link.name,
-                    description: link.description,
-                    link: link.url,
-                    visitCount: link.visitCount,
-                    isBookMarked: link.isBookMarked,
-                    createdAt: link.createdAt
-                ))
-            }
-        return [.init(items: items)]
+            .map { Item.detail($0.toModel()) }
+        if items.isEmpty {
+            return [.init(items: [.guide(.init(title: "추가된 링크가 없어요", subtitle: "하단의 버튼을 눌러 링크를 추가해주세요"))])]
+        } else {
+            return [.init(items: items)]
+        }
     }
     
     private func subscribeNotificationManager() {
@@ -130,29 +136,41 @@ extension HomeGroupDetailReactor {
             .disposed(by: disposeBag)
     }
     
-    private func updateLinkVisitCountIfEnabled(using item: Item) {
-        let visitCount = item.cellModel.visitCount + 1
-        let link = Link(
-            groupID: dependency.group.createdAt,
-            name: item.cellModel.title,
-            url: item.cellModel.link,
-            description: item.cellModel.description ?? "",
-            visitCount: visitCount,
-            isBookMarked: item.cellModel.isBookMarked,
-            createdAt: item.cellModel.createdAt
-        )
+    private func updateLinkVisitCountIfEnabled(using model: HomeGroupDetailTableViewCellModel) {
+        let visitCount = model.visitCount + 1
+        let link = model.toLink(visitCount: visitCount)
         try? dependency.linkUseCase.update(link: link)
     }
     
-    private func createLink(using item: Item) -> Link {
+}
+
+private extension HomeGroupDetailTableViewCellModel {
+    
+    func toLink(visitCount: Int? = nil) -> Link {
         return Link(
-            groupID: dependency.group.createdAt,
-            name: item.cellModel.title,
-            url: item.cellModel.link,
-            description: item.cellModel.description ?? "",
-            visitCount: item.cellModel.visitCount,
-            isBookMarked: item.cellModel.isBookMarked,
-            createdAt: item.cellModel.createdAt
+            groupID: self.groupID,
+            name: self.title,
+            url: self.link,
+            description: self.description ?? "",
+            visitCount: visitCount ?? self.visitCount,
+            isBookMarked: self.isBookMarked,
+            createdAt: self.createdAt
+        )
+    }
+    
+}
+
+private extension Link {
+    
+    func toModel() -> HomeGroupDetailTableViewCellModel {
+        return HomeGroupDetailTableViewCellModel(
+            groupID: self.groupID,
+            title: self.name,
+            description: self.description,
+            link: self.url,
+            visitCount: self.visitCount,
+            isBookMarked: self.isBookMarked,
+            createdAt: self.createdAt
         )
     }
     
