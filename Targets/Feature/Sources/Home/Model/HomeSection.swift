@@ -9,11 +9,14 @@ import RxDataSources
 
 enum HomeSection {
     case group([HomeItem])
+    case link([HomeItem])
 }
 
 enum HomeItem {
     case title(String)
     case group(HomeGroupTableViewCellModel)
+    case link(HomeGroupDetailTableViewCellModel)
+    case guide(HomeGuidTableViewCellModel)
 }
 
 extension HomeSection: SectionModelType {
@@ -21,6 +24,7 @@ extension HomeSection: SectionModelType {
     var items: [HomeItem] {
         switch self {
         case .group(let items): return items
+        case .link(let items): return items
         }
     }
     
