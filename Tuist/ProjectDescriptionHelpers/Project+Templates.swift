@@ -183,9 +183,7 @@ public extension Module {
         case .service:
             return [
                 .target(name: Module.domain.name),
-                .XcodeSPM.realmSwift.object,
-                .XcodeSPM.firebaseAnalytics.object,
-                .package(product: "FirebaseFirestore")
+                .XcodeSPM.realmSwift.object
             ]
             
         case .ui:
@@ -286,19 +284,16 @@ public extension TargetDependency {
     
     enum XcodeSPM: CaseIterable {
         case realmSwift
-        case firebaseAnalytics
         
         public var object: TargetDependency {
             switch self {
             case .realmSwift: return TargetDependency.package(product: "RealmSwift")
-            case .firebaseAnalytics: return TargetDependency.package(product: "FirebaseAnalytics")
             }
         }
         
         public var package: Package {
             switch self {
             case .realmSwift: return .remote(url: "https://github.com/realm/realm-swift.git", requirement: .upToNextMajor(from: "10.39.1"))
-            case .firebaseAnalytics: return .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "8.0.0"))
             }
         }
     }
